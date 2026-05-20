@@ -18,9 +18,14 @@ app.use(morgan('dev'))
 
 const port = process.env.PORT || 3000
 
-app.use('/auth', authRoutes)
-app.use('/etudiant', etudiantRoutes)
-app.use('/formation', formationRoutes)
+// On groupe toutes les routes sous /api pour correspondre au frontend
+const apiRouter = express.Router();
+
+apiRouter.use('/auth', authRoutes)
+apiRouter.use('/etudiant', etudiantRoutes)
+apiRouter.use('/formation', formationRoutes)
+
+app.use('/api', apiRouter);
 
 app.listen(port, () => {
     console.log(`Le serveur est lancé sur http://localhost:${port}/`)

@@ -122,31 +122,39 @@
 </template>
 
 <script setup>
-import { reactive } from "vue";
+import { reactive, ref } from "vue";
 import { useRouter } from "vue-router";
+import api from "../../api/axios";
 
 const router = useRouter();
+const error = ref("");
 
 const form = reactive({
   email: "",
   password: "",
 });
 
-const handleLogin = () => {
+const handleLogin = async () => {
+  try {
+    error.value = "";
+    const response = await api.post("/auth/login", {
+        email: form.email,
+        mot_de_passe: form.password
+    });
 
-  localStorage.setItem("token", "test");
+    const { user, token } = response.data.data;
+    
+    localStorage.setItem("token", token);
+    localStorage.setItem("role", user.role);
+    localStorage.setItem("user", JSON.stringify(user));
 
-  if (form.email.includes("admin")) {
-
-    localStorage.setItem("role", "ADMIN");
-
-    router.push("/admin");
-
-  } else {
-
-    localStorage.setItem("role", "STUDENT");
-
-    router.push("/student");
+    if (user.role === "ADMIN") {
+      router.push("/admin");
+    } else {
+      router.push("/student");
+    }
+  } catch (err) {
+    error.value = err.response?.data?.message || "Erreur de connexion";
   }
 };
 </script>

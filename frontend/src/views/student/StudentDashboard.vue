@@ -27,15 +27,15 @@
         </div>
 
         <div class="sidebar-item">
-          Schedule
+          Schedule (No Link)
         </div>
 
         <div class="sidebar-item">
-          Progress
+          Progress (No Link)
         </div>
 
         <div class="sidebar-item">
-          Certificates
+          Certificates (No Link)
         </div>
 
       </div>
@@ -62,7 +62,7 @@
         <div>
 
           <h1 class="text-4xl font-bold text-[#003049]">
-            Welcome Back
+            Welcome Back, {{ user.prenom }}
           </h1>
 
           <p class="text-gray-500 mt-2">
@@ -112,7 +112,7 @@
           </p>
 
           <h2 class="text-5xl font-bold mt-4 text-[#003049]">
-            6
+            6 (Static)
           </h2>
 
         </div>
@@ -124,7 +124,7 @@
           </p>
 
           <h2 class="text-5xl font-bold mt-4 text-[#003049]">
-            3
+            {{ formation ? 1 : 0 }}
           </h2>
 
         </div>
@@ -136,7 +136,7 @@
           </p>
 
           <h2 class="text-5xl font-bold mt-4 text-[#003049]">
-            2
+            2 (Static)
           </h2>
 
         </div>
@@ -151,7 +151,7 @@
           <div>
 
             <h2 class="text-3xl font-bold">
-              My Courses
+              My Formation
             </h2>
 
             <p class="text-gray-500 mt-2">
@@ -165,7 +165,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
 
           <!-- CARD -->
-          <div class="bg-white rounded-3xl overflow-hidden shadow-sm">
+          <div v-if="formation" class="bg-white rounded-3xl overflow-hidden shadow-sm">
 
             <div class="h-44 bg-[#003049]"></div>
 
@@ -174,120 +174,33 @@
               <div class="flex items-center justify-between">
 
                 <span class="bg-[#669BBC]/20 text-[#003049] px-3 py-1 rounded-full text-sm">
-                  Development
+                  Formation
                 </span>
 
                 <span class="text-gray-500 text-sm">
-                  75%
+                  Active
                 </span>
 
               </div>
 
               <h3 class="text-2xl font-bold mt-5">
-                Web Development
+                {{ formation.titre }}
               </h3>
 
               <p class="text-gray-500 mt-3 leading-relaxed">
-                Learn frontend and backend
-                technologies with real projects.
+                Duration: {{ formation.duree }} hours
               </p>
 
-              <div class="w-full h-2 bg-gray-100 rounded-full mt-6">
-
-                <div class="w-3/4 h-full bg-[#990000] rounded-full"></div>
-
-              </div>
-
               <button class="primary-btn w-full mt-6">
-                Continue
+                Continue Learning
               </button>
 
             </div>
 
           </div>
 
-          <!-- CARD -->
-          <div class="bg-white rounded-3xl overflow-hidden shadow-sm">
-
-            <div class="h-44 bg-[#669BBC]"></div>
-
-            <div class="p-6">
-
-              <div class="flex items-center justify-between">
-
-                <span class="bg-[#669BBC]/20 text-[#003049] px-3 py-1 rounded-full text-sm">
-                  Security
-                </span>
-
-                <span class="text-gray-500 text-sm">
-                  40%
-                </span>
-
-              </div>
-
-              <h3 class="text-2xl font-bold mt-5">
-                Cybersecurity
-              </h3>
-
-              <p class="text-gray-500 mt-3 leading-relaxed">
-                Learn modern security concepts,
-                pentesting and defense techniques.
-              </p>
-
-              <div class="w-full h-2 bg-gray-100 rounded-full mt-6">
-
-                <div class="w-2/5 h-full bg-[#990000] rounded-full"></div>
-
-              </div>
-
-              <button class="primary-btn w-full mt-6">
-                Continue
-              </button>
-
-            </div>
-
-          </div>
-
-          <!-- CARD -->
-          <div class="bg-white rounded-3xl overflow-hidden shadow-sm">
-
-            <div class="h-44 bg-[#990000]"></div>
-
-            <div class="p-6">
-
-              <div class="flex items-center justify-between">
-
-                <span class="bg-[#669BBC]/20 text-[#003049] px-3 py-1 rounded-full text-sm">
-                  Cloud
-                </span>
-
-                <span class="text-gray-500 text-sm">
-                  90%
-                </span>
-
-              </div>
-
-              <h3 class="text-2xl font-bold mt-5">
-                Cloud Computing
-              </h3>
-
-              <p class="text-gray-500 mt-3 leading-relaxed">
-                Learn cloud infrastructure,
-                deployment and DevOps basics.
-              </p>
-
-              <div class="w-full h-2 bg-gray-100 rounded-full mt-6">
-
-                <div class="w-[90%] h-full bg-[#990000] rounded-full"></div>
-
-              </div>
-
-              <button class="primary-btn w-full mt-6">
-                Continue
-              </button>
-
-            </div>
-
+          <div v-else class="text-gray-500">
+            You are not enrolled in any formation yet.
           </div>
 
         </div>
@@ -301,13 +214,31 @@
 
 <script setup>
 import { useRouter } from "vue-router";
+import { onMounted, ref } from "vue";
+import api from "../../api/axios";
 
 const router = useRouter();
+const user = JSON.parse(localStorage.getItem("user") || "{}");
+const formation = ref(null);
 
-const logout = () => {
+onMounted(async () => {
+    if (user.etudiant?.id_etudiant) {
+        try {
+            const response = await api.get(`/etudiant/${user.etudiant.id_etudiant}/formation`);
+            formation.value = response.data.data;
+        } catch (err) {
+            console.error("Error fetching student formation", err);
+        }
+    }
+});
 
+const logout = async () => {
+  try {
+    await api.post("/auth/logout");
+  } catch (err) {
+    console.error("Logout error", err);
+  }
   localStorage.clear();
-
   router.push("/");
 };
 </script>

@@ -164,30 +164,19 @@
 
           </div>
 
-          <div>
+          <div v-if="form.role === 'STUDENT'">
 
             <label class="block mb-2 font-medium">
-              Formation
+              Formation (Optional)
             </label>
 
             <select
-              v-model="form.formation"
+              v-model="form.formationId"
               class="input-modern"
             >
-              <option>
-                Web Development
-              </option>
-
-              <option>
-                Cybersecurity
-              </option>
-
-              <option>
-                Cloud Computing
-              </option>
-
-              <option>
-                Data Science
+              <option value="">Select a formation</option>
+              <option v-for="f in formations" :key="f.id_formation" :value="f.id_formation">
+                {{ f.titre }}
               </option>
             </select>
 
@@ -223,10 +212,12 @@
 </template>
 
 <script setup>
-import { reactive } from "vue";
+import { reactive, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
+import api from "../../api/axios";
 
 const router = useRouter();
+const formations = ref([]);
 
 const form = reactive({
   firstName: "",
@@ -234,13 +225,32 @@ const form = reactive({
   email: "",
   password: "",
   role: "STUDENT",
-  formation: "",
+  formationId: "",
 });
 
-const handleRegister = () => {
+onMounted(async () => {
+    try {
+        const response = await api.get("/formation");
+        formations.value = response.data.data;
+    } catch (err) {
+        console.error("Failed to fetch formations", err);
+    }
+});
 
-  alert("Account Created");
+const handleRegister = async () => {
+  try {
+    await api.post("/auth/register", {
+        email: form.email,
+        mot_de_passe: form.password,
+        nom: form.lastName,
+        prenom: form.firstName,
+        role: form.role
+    });
 
-  router.push("/");
+    alert("Account Created successfully!");
+    router.push("/");
+  } catch (err) {
+    alert(err.response?.data?.message || "Error during registration");
+  }
 };
 </script>

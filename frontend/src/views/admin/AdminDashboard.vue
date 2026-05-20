@@ -31,11 +31,11 @@
         </div>
 
         <div class="sidebar-item">
-          Teachers
+          Teachers (No Link)
         </div>
 
         <div class="sidebar-item">
-          Analytics
+          Analytics (No Link)
         </div>
 
       </div>
@@ -87,7 +87,7 @@
           </p>
 
           <h2 class="text-5xl font-bold mt-4 text-[#003049]">
-            120
+            {{ stats.students }}
           </h2>
 
         </div>
@@ -99,7 +99,7 @@
           </p>
 
           <h2 class="text-5xl font-bold mt-4 text-[#003049]">
-            15
+            {{ stats.formations }}
           </h2>
 
         </div>
@@ -111,7 +111,7 @@
           </p>
 
           <h2 class="text-5xl font-bold mt-4 text-[#003049]">
-            9
+            9 (Static)
           </h2>
 
         </div>
@@ -123,7 +123,7 @@
           </p>
 
           <h2 class="text-5xl font-bold mt-4 text-[#003049]">
-            $24K
+            $24K (Static)
           </h2>
 
         </div>
@@ -138,17 +138,17 @@
           <div>
 
             <h2 class="text-2xl font-bold">
-              Students List
+              Formations List
             </h2>
 
             <p class="text-gray-500 mt-2">
-              Manage registered students
+              Manage available formations
             </p>
 
           </div>
 
-          <button class="secondary-btn">
-            Add Student
+          <button class="secondary-btn" @click="addFormation">
+            Add Formation
           </button>
 
         </div>
@@ -160,19 +160,15 @@
             <tr class="text-left border-b">
 
               <th class="pb-5">
-                Name
+                Title
               </th>
 
               <th class="pb-5">
-                Email
+                Duration (h)
               </th>
 
               <th class="pb-5">
-                Formation
-              </th>
-
-              <th class="pb-5">
-                Status
+                Actions
               </th>
 
             </tr>
@@ -181,42 +177,18 @@
 
           <tbody>
 
-            <tr class="border-b">
+            <tr v-for="f in formations" :key="f.id_formation" class="border-b">
 
               <td class="py-5">
-                John Doe
+                {{ f.titre }}
               </td>
 
               <td>
-                john@test.com
+                {{ f.duree }}
               </td>
 
               <td>
-                Web Development
-              </td>
-
-              <td>
-                Active
-              </td>
-
-            </tr>
-
-            <tr>
-
-              <td class="py-5">
-                Sarah Smith
-              </td>
-
-              <td>
-                sarah@test.com
-              </td>
-
-              <td>
-                Cybersecurity
-              </td>
-
-              <td>
-                Active
+                <button @click="deleteForm(f.id_formation)" class="text-red-500">Delete</button>
               </td>
 
             </tr>
@@ -234,13 +206,61 @@
 
 <script setup>
 import { useRouter } from "vue-router";
+import { onMounted, reactive, ref } from "vue";
+import api from "../../api/axios";
 
 const router = useRouter();
+const formations = ref([]);
+const stats = reactive({
+    students: 0,
+    formations: 0
+});
 
-const logout = () => {
+const fetchFormations = async () => {
+    try {
+        const response = await api.get("/formation");
+        formations.value = response.data.data;
+        stats.formations = formations.value.length;
+    } catch (err) {
+        console.error("Error fetching formations", err);
+    }
+};
 
+onMounted(async () => {
+    await fetchFormations();
+});
+
+const addFormation = async () => {
+    const titre = prompt("Formation Title:");
+    const duree = prompt("Duration (hours):");
+    if (titre && duree) {
+        try {
+            await api.post("/formation", { titre, duree });
+            fetchFormations();
+        } catch (err) {
+            alert("Error adding formation");
+        }
+    }
+};
+
+const deleteForm = async (id) => {
+    if (confirm("Delete this formation?")) {
+        try {
+            await api.delete(`/formation/${id}`);
+            fetchFormations();
+        } catch (err) {
+            alert("Error deleting formation");
+        }
+    }
+};
+
+const logout = async () => {
+  try {
+    await api.post("/auth/logout");
+  } catch (err) {
+    console.error("Logout error", err);
+  }
   localStorage.clear();
-
   router.push("/");
 };
 </script>
