@@ -1,0 +1,98 @@
+@import "tailwindcss";
+
+:root {
+  --primary-red: #990000;
+  --beige: #E8DCC2;
+  --dark-blue: #003049;
+  --light-blue: #669BBC;
+
+  --white: #ffffff;
+  --text: #1a1a1a;
+}
+
+body {
+  background: var(--beige);
+  color: var(--text);
+  min-height: 100vh;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.gradient-bg {
+  background: linear-gradient(
+    135deg,
+    #003049 0%,
+    #001d2e 100%
+  );
+}
+
+.glass-card {
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 24px;
+}
+
+.primary-btn {
+  background: var(--primary-red);
+  color: white;
+  padding: 14px 24px;
+  border-radius: 14px;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.primary-btn:hover {
+  background: #7a0000;
+  transform: translateY(-2px);
+}
+
+.secondary-btn {
+  background: var(--dark-blue);
+  color: white;
+  padding: 14px 24px;
+  border-radius: 14px;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.secondary-btn:hover {
+  background: #01263d;
+}
+
+.input-modern {
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid #d9d9d9;
+  background: white;
+  outline: none;
+  transition: 0.3s;
+}
+
+.input-modern:focus {
+  border-color: var(--light-blue);
+  box-shadow: 0 0 0 4px rgba(102,155,188,0.2);
+}
+
+.sidebar-item {
+  padding: 14px;
+  border-radius: 12px;
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+.sidebar-item:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+.stat-card {
+  background: white;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  transition: 0.3s;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+}
